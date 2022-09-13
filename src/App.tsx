@@ -1,21 +1,19 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { increment } from "./store/reducer/three";
+import Globle from "./example/globle";
+import Objs from "./example/Objs";
+import Responsive from "./example/Responsive";
+import Solar from "./example/Solar";
+import Tank from "./example/Tank";
 
 const App: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const value = useAppSelector((state) => state.three.value);
-
     return (
-        <div>
-            <button
-                onClick={() => {
-                    dispatch(increment(23));
-                }}
-            >
-                {value}
-            </button>
-        </div>
+        <>
+            {/* <Responsive /> */}
+            {/* <Objs /> */}
+            {/* <Solar />
+            {/* <Tank /> */}
+            <Globle />
+        </>
     );
 };
 

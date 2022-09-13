@@ -1,23 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { WebGLRenderer } from "three";
 
 type State = {
-    value: number;
+    renderer: WebGLRenderer;
 };
 
 const initialState: State = {
-    value: 12,
+    renderer: null,
 };
 
 const slice = createSlice({
     name: "three",
     initialState,
     reducers: {
-        increment(state, action: PayloadAction<number>) {
-            state.value += action.payload;
+        setRenderer(state, action: PayloadAction<WebGLRenderer>) {
+            state.renderer = action.payload;
         },
     },
 });
 
-export const { increment } = slice.actions;
+export const { setRenderer } = slice.actions;
 
 export default slice.reducer;
