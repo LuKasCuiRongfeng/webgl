@@ -2,6 +2,7 @@ import React from "react";
 import Test from "./example/buffer";
 import Earth from "./example/earth";
 import Globle from "./example/globle";
+import Matrx from "./example/matrix";
 import Objs from "./example/Objs";
 import Responsive from "./example/Responsive";
 import Solar from "./example/Solar";
@@ -17,7 +18,8 @@ const App: React.FC = () => {
             {/* <Globle /> */}
             {/* <Earth />
             < */}
-            <Test />
+            {/* <Test /> */}
+            <Matrx />
         </>
     );
 };
