@@ -9,6 +9,7 @@ import {
     Scene,
     Shape,
 } from "three";
+import "./index.css";
 
 const Objs: React.FC = () => {
     const ref = useRef<HTMLCanvasElement>();
@@ -17,54 +18,37 @@ const Objs: React.FC = () => {
         ref.current && render();
     }, []);
 
-    const createShape = () => {
-        const shape = new Shape();
-        const x = -2.5;
-        const y = -5;
-        shape.moveTo(x + 2.5, y + 2.5);
-        shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2, y, x, y);
-        shape.bezierCurveTo(x - 3, y, x - 3, y + 3.5, x - 3, y + 3.5);
-        shape.bezierCurveTo(x - 3, y + 5.5, x - 1.5, y + 7.7, x + 2.5, y + 9.5);
-        shape.bezierCurveTo(x + 6, y + 7.7, x + 8, y + 4.5, x + 8, y + 3.5);
-        shape.bezierCurveTo(x + 8, y + 3.5, x + 8, y, x + 5, y);
-        shape.bezierCurveTo(x + 3.5, y, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
-
-        const geo = new ExtrudeGeometry(shape, {
-            steps: 2,
-            depth: 2,
-            bevelEnabled: true,
-            bevelThickness: 1,
-            bevelSize: 1,
-            bevelSegments: 2,
-        });
-        return geo;
-    };
-    const render = () => {
-        const manager = new Manager({ canvas: ref.current });
+    const render = async () => {
+        const manager = new Manager({ canvas: ref.current, antialias: true });
 
         const scene = manager.addScene(new Scene());
 
         const camera = manager.addCamera(new PerspectiveCamera(75, 1, 0.1, 20));
         camera.position.z = 10;
 
-        const mat = new MeshPhongMaterial({ color: "green" });
+        const texture = await manager
+            .getTextureLoader()
+            .loadAsync("http://localhost:20000/assets/naked.jpg");
 
-        const obj = new Mesh(createShape(), mat);
+        const imgAspect = texture.image
+            ? texture.image.width / texture.image.height
+            : 1;
+        const aspect = imgAspect / manager.getCanvasAspect();
 
-        const light = new DirectionalLight("white", 1);
-        light.position.set(-6, 6, 6);
+        texture.offset.x = aspect > 1 ? (1 - 1 / aspect) / 2 : 0;
+        texture.repeat.x = aspect > 1 ? 1 / aspect : 1;
 
-        scene.add(light);
+        texture.offset.y = aspect > 1 ? 0 : (1 - aspect) / 2;
+        texture.repeat.y = aspect > 1 ? 1 : aspect;
 
-        scene.add(obj);
+        // texture.rotation = Math.PI * 0.5
 
-        manager.animate((time) => {
-            const _time = time * 0.001;
-            manager.rotationAnimate(obj, {
-                x: 1 * _time,
-                y: 1 * _time,
-                z: 1 * _time,
-            });
+        scene.background = texture;
+
+        manager.animate(() => {
+            manager.resizeRendererToDisplaySize();
+
+            manager.getRenderer().render(scene, camera);
         });
     };
 

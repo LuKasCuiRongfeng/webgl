@@ -3,8 +3,10 @@ import {
     Clock,
     Object3D,
     PerspectiveCamera,
+    Raycaster,
     Scene,
     TextureLoader,
+    Vector3,
     WebGLRenderer,
     WebGLRendererParameters,
 } from "three";
@@ -13,6 +15,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import Helper from "./Helper";
 import ControlGUI from "./gui";
+import Picker from "./Picker";
 class Manager {
     private renderer: WebGLRenderer;
     private scene: Scene;
@@ -23,6 +26,7 @@ class Manager {
 
     private glTFLoader: GLTFLoader;
     private textureLoader: TextureLoader;
+    private rayCaster: Raycaster;
 
     constructor(parameters?: WebGLRendererParameters) {
         this.renderer = new WebGLRenderer(parameters);
@@ -52,6 +56,12 @@ class Manager {
 
     getCamera() {
         return this.camera;
+    }
+
+    getCanvasAspect() {
+        const width = this.renderer.domElement.clientWidth;
+        const height = this.renderer.domElement.clientHeight;
+        return width / height;
     }
 
     /** 调整 canvas 内部尺寸匹配视口尺寸，同时会更新相机的 aspect，避免画面变形，
@@ -138,7 +148,11 @@ class Manager {
         return this.textureLoader;
     }
 
-    /** 部分渲染画布，计算该元素和画布的重叠面积， 返回重叠部分的宽高比 */
+    /** 部分渲染画布，计算该元素和画布的重叠范围， 返回重叠部分的宽高比
+     * 该技术可以实现在一个画布的不同位置里绘制多个场景而相互不受影响，
+     * 注意启用渲染器的裁剪检查 `renderer.setScissorTest(true)`， scene可以是多个，
+     * 也可以是一个，多个scene互不影响，一个scene可以形成多镜头的效果
+     */
     setScissorForElement(canvas: HTMLCanvasElement, elem: HTMLElement) {
         const canvasRect = canvas.getBoundingClientRect();
         const elemRect = elem.getBoundingClientRect();
@@ -159,6 +173,24 @@ class Manager {
         this.getRenderer().setViewport(left, positiveYUpBottom, width, height);
 
         return width / height;
+    }
+
+    /** 把普通坐标(一般指的是canvas像素坐标，左上角是原点，向右是 x 正方向，向下是 y 的正方向)
+     * 转换成归一化坐标(一般指 webgl 使用的坐标，x 从左到右，范围是 -1 ~ 1，y 从下到上，
+     * 范围是 -1 ~ 1，原点在正中心)。
+     */
+    getnormalizedPosition(
+        canvas: HTMLCanvasElement,
+        pixelPosition: { x: number; y: number }
+    ) {
+        return {
+            x: (pixelPosition.x / canvas.clientWidth) * 2 - 1,
+            y: (pixelPosition.y / canvas.clientHeight) * -2 + 1, // 注意y轴向上是正方向，所以翻转了一下
+        };
+    }
+
+    getPicker() {
+        return Picker.getPicker();
     }
 }
 

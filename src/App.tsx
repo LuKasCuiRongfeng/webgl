@@ -1,4 +1,6 @@
 import React from "react";
+import Test from "./example/buffer";
+import Earth from "./example/earth";
 import Globle from "./example/globle";
 import Objs from "./example/Objs";
 import Responsive from "./example/Responsive";
@@ -12,7 +14,10 @@ const App: React.FC = () => {
             {/* <Objs /> */}
             {/* <Solar />
             {/* <Tank /> */}
-            <Globle />
+            {/* <Globle /> */}
+            {/* <Earth />
+            < */}
+            <Test />
         </>
     );
 };
